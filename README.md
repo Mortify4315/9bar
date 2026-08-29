@@ -11,9 +11,11 @@
 [![License](https://img.shields.io/badge/License-MIT-emerald?style=flat-square)](LICENSE)
 
 <p align="center">
-  A high-density telemetry desktop companion for Windows notification areas and macOS menu bars.<br />
+  A high-density telemetry desktop companion for system trays and menu bars.<br />
   Monitor AI provider quotas, rate-limit countdowns, and active accounts in real time with zero browser tabs.
 </p>
+
+> **Platform status:** Windows is supported. macOS and Linux are experimental and currently unverified.
 
 <p align="center">
   <img src="assets/ss.png" alt="9Bar Telemetry HUD Preview" width="380" />
