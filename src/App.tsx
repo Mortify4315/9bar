@@ -1,10 +1,10 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuotaData } from "./hooks/useQuotaData";
 import { Header } from "./components/Header";
 import { FilterBar } from "./components/FilterBar";
 import { AccountCard } from "./components/AccountCard";
 import { OfflineBanner } from "./components/OfflineBanner";
-import { FilterMode, SortMode, AccountQuotaView } from "./types/9router";
+import { FilterMode, SortMode, AccountQuotaView, QuotaDetail } from "./types/9router";
 import { Loader2, Layers } from "lucide-react";
 
 export function App() {
@@ -17,8 +17,6 @@ export function App() {
     isPinned,
     togglePin,
     fetchQuotas,
-    toggleAccount,
-    resetCredits,
     openDashboard,
     hideWindow,
   } = useQuotaData(30000);
@@ -54,46 +52,86 @@ export function App() {
       result = result.filter((a) => !a.is_active);
     }
 
-    // Helper to get remaining %
-    const getRemaining = (a: AccountQuotaView) => {
-      const q = a.session_quota || a.weekly_quota;
-      if (!q) return 100;
-      if (q.remaining !== undefined) return q.remaining;
-      const total = q.total || 100;
-      const used = q.used || 0;
-      return total > 0 ? ((total - used) / total) * 100 : 0;
-    };
+    // Helper to calculate quota metrics for an account
+    const getAccountMetrics = (a: AccountQuotaView) => {
+      if (a.limit_reached) {
+        return { minRemaining: 0, soonestResetTime: Infinity };
+      }
 
-    // Helper for resetAt timestamp
-    const getResetTime = (a: AccountQuotaView) => {
-      const q = a.session_quota || a.weekly_quota;
-      return q?.resetAt ? new Date(q.resetAt).getTime() : Infinity;
+      const allQuotas: QuotaDetail[] = [];
+      if (a.session_quota) allQuotas.push(a.session_quota);
+      if (a.weekly_quota) allQuotas.push(a.weekly_quota);
+      if (a.quotas) {
+        for (const q of Object.values(a.quotas)) {
+          if (q && !allQuotas.includes(q)) {
+            allQuotas.push(q);
+          }
+        }
+      }
+
+      if (allQuotas.length === 0) {
+        return { minRemaining: 100, soonestResetTime: Infinity };
+      }
+
+      let minRemaining = 100;
+      let soonestResetTime = Infinity;
+      const now = Date.now();
+
+      for (const q of allQuotas) {
+        // 1. Remaining percentage
+        let rem = 100;
+        if (typeof q.remaining === "number" && !isNaN(q.remaining)) {
+          rem = Math.max(0, Math.min(100, q.remaining));
+        } else {
+          const total = typeof q.total === "number" && !isNaN(q.total) ? q.total : 100;
+          const used = typeof q.used === "number" && !isNaN(q.used) ? q.used : 0;
+          if (total > 0) {
+            rem = Math.max(0, Math.min(100, Math.round(((total - used) / total) * 100)));
+          }
+        }
+
+        if (rem < minRemaining) {
+          minRemaining = rem;
+        }
+
+        // 2. Reset time
+        if (q.resetAt) {
+          const resetTime = new Date(q.resetAt).getTime();
+          if (!isNaN(resetTime) && resetTime > now) {
+            if (resetTime < soonestResetTime) {
+              soonestResetTime = resetTime;
+            }
+          }
+        }
+      }
+
+      return { minRemaining, soonestResetTime };
     };
 
     // Sort
     if (sort === "remaining-asc") {
-      result.sort((a, b) => getRemaining(a) - getRemaining(b));
+      result.sort((a, b) => {
+        const diff = getAccountMetrics(a).minRemaining - getAccountMetrics(b).minRemaining;
+        if (diff !== 0) return diff;
+        return (a.name || a.email).localeCompare(b.name || b.email);
+      });
     } else if (sort === "remaining-desc") {
-      result.sort((a, b) => getRemaining(b) - getRemaining(a));
+      result.sort((a, b) => {
+        const diff = getAccountMetrics(b).minRemaining - getAccountMetrics(a).minRemaining;
+        if (diff !== 0) return diff;
+        return (a.name || a.email).localeCompare(b.name || b.email);
+      });
     } else if (sort === "expiring-first") {
-      result.sort((a, b) => getResetTime(a) - getResetTime(b));
+      result.sort((a, b) => {
+        const resetA = getAccountMetrics(a).soonestResetTime;
+        const resetB = getAccountMetrics(b).soonestResetTime;
+        if (resetA !== resetB) return resetA - resetB;
+        return getAccountMetrics(a).minRemaining - getAccountMetrics(b).minRemaining;
+      });
     }
 
     return result;
   }, [accounts, selectedProvider, filter, sort]);
-
-  // Turn off empty accounts (remaining <= 5%)
-  const handleTurnOffEmpty = useCallback(async () => {
-    for (const acc of accounts) {
-      if (acc.is_active) {
-        const q = acc.session_quota || acc.weekly_quota;
-        const remaining = q?.remaining ?? (q && q.total ? ((q.total - (q.used || 0)) / q.total) * 100 : 100);
-        if (remaining <= 5) {
-          toggleAccount(acc.id, true);
-        }
-      }
-    }
-  }, [accounts, toggleAccount]);
 
   // Global Keyboard Shortcuts
   useEffect(() => {
@@ -120,21 +158,11 @@ export function App() {
         hideWindow();
         return;
       }
-
-      // Number keys 1-9: Toggle account by index
-      const num = parseInt(e.key, 10);
-      if (!isNaN(num) && num >= 1 && num <= 9) {
-        const targetAcc = filteredAndSortedAccounts[num - 1];
-        if (targetAcc) {
-          e.preventDefault();
-          toggleAccount(targetAcc.id, targetAcc.is_active);
-        }
-      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [filteredAndSortedAccounts, fetchQuotas, hideWindow, toggleAccount]);
+  }, [fetchQuotas, hideWindow]);
 
   return (
     <div className="w-full h-full bg-[#0c0d11] text-zinc-100 border border-zinc-700/80 rounded-xl shadow-2xl overflow-hidden flex flex-col font-mono select-none">
@@ -158,7 +186,6 @@ export function App() {
         onFilterChange={setFilter}
         sort={sort}
         onSortChange={setSort}
-        onTurnOffEmpty={handleTurnOffEmpty}
       />
 
       {/* Main Content Area */}
@@ -187,8 +214,6 @@ export function App() {
               key={account.id}
               account={account}
               index={idx}
-              onToggle={toggleAccount}
-              onResetCredits={resetCredits}
             />
           ))
         )}
@@ -198,7 +223,7 @@ export function App() {
           <div className="p-1.5 bg-zinc-950/60 border border-dashed border-zinc-800 rounded text-[9px] text-zinc-500 flex items-center justify-between">
             <span>HOTKEYS:</span>
             <span className="text-zinc-400">
-              <kbd className="px-1 bg-zinc-800 text-zinc-300 rounded">1-9</kbd> Toggle • <kbd className="px-1 bg-zinc-800 text-zinc-300 rounded">R</kbd> Sync • <kbd className="px-1 bg-zinc-800 text-zinc-300 rounded">Esc</kbd> Close
+              <kbd className="px-1 bg-zinc-800 text-zinc-300 rounded">R</kbd> Sync • <kbd className="px-1 bg-zinc-800 text-zinc-300 rounded">Esc</kbd> Close
             </span>
           </div>
         )}

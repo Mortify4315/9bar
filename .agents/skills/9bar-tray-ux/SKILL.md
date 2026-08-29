@@ -1,4 +1,4 @@
-﻿---
+---
 name: 9bar-tray-ux
 description: >-
   Specialized UX and UI design rules for 9Bar (Tauri v2 + React 19 + Tailwind CSS 4). Use this skill when modifying, adding, or refining 9Bar components, system tray popups, quota gauges, account cards, filters, and desktop HUD behaviors.
@@ -29,7 +29,7 @@ Each provider account card must adhere to the high-density layout:
    - Provider Icon / Indicator (`Codex`, `Claude`, etc.)
    - Account Email / Name (truncated with ellipsis if > 24 chars)
    - Tier Badge (`[PLUS]`, `[TEAM]`, `[FREE]`)
-   - Instant Toggle Switch (`[ON / OFF]`)
+   - Read-only Status Badge (`[LIVE]` in emerald / `[OFF]` in zinc)
 2. **Dual-Tier Quota Gauges**:
    - **Session Quota**: Short-term burst gauge (fraction + remaining % + countdown).
    - **Weekly / Monthly Quota**: Long-term tier gauge.

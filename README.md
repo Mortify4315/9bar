@@ -11,12 +11,12 @@
 [![License](https://img.shields.io/badge/License-MIT-emerald?style=flat-square)](LICENSE)
 
 <p align="center">
-  A high-density Swiss Bento Matrix desktop companion for Windows notification areas and macOS menu bars.<br />
+  A high-density telemetry desktop companion for Windows notification areas and macOS menu bars.<br />
   Monitor AI provider quotas, rate-limit countdowns, and active accounts in real time with zero browser tabs.
 </p>
 
 <p align="center">
-  <img src="assets/preview.png" alt="9Bar Swiss Bento HUD Preview" width="380" />
+  <img src="assets/preview.png" alt="9Bar Telemetry HUD Preview" width="380" />
 </p>
 
 </div>
@@ -29,13 +29,13 @@
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│  [9B] 9BAR // KERNEL   [#32 ACC]         [📌] [🔄] [↗] │  <- Swiss Top Bar (Drag Region)
+│  [9B] 9BAR // KERNEL   [#32 ACC]         [📌] [🔄] [↗] │  <- Header Bar (Drag Region)
 ├────────────────────────────────────────────────────────┤
 │  [ ALL PROVIDERS ] [ CODEX ] [ OPENCODE-GO ] [ QODER ] │  <- Monospace Provider Tabs
-│  [ ALL | LIVE | OFF ]               [Default ▼] [PRUNE]│  <- Status Filters & Quick Prune
+│  [ ALL | LIVE | OFF ]                      [Default ▼] │  <- Status Filters & Quota Sort
 ├────────────────────────────────────────────────────────┤
 │  ┌──────────────────────────────────────────────────┐  │
-│  │ [1] user@domain.com    [ID: #01 • CODEX_PLUS] [ON]│ │  <- Account Header Row
+│  │ [1] user@domain.com    [ID: #01 • CODEX_PLUS][LIVE]│  <- Account Header (Read-only status)
 │  │ ┌──────────────────────┬──────────────────────┐  │  │
 │  │ │ SESSION QUOTA   0/100│ WEEKLY TIER    45/100│  │  │  <- Dual-Box Telemetry Grid
 │  │ │ 100%    [██████████] │ 55%     [██████░░░░] │  │  │
@@ -43,7 +43,7 @@
 │  │ └──────────────────────┴──────────────────────┘  │  │
 │  └──────────────────────────────────────────────────┘  │
 ├────────────────────────────────────────────────────────┤
-│  HOTKEYS: 1-9 Toggle • R Sync • Esc Close              │  <- Hotkey Legend
+│  HOTKEYS: R Sync • Esc Close                           │  <- Hotkey Legend
 ├────────────────────────────────────────────────────────┤
 │  🟢 127.0.0.1:20128 [ESTABLISHED]       SYNC 17:11:58  │  <- Status Footer
 └────────────────────────────────────────────────────────┘
@@ -57,13 +57,13 @@
 ## Features
 
 - **System Tray Native**: Lightweight background tray companion with instant left-click toggle, context menu controls, and taskbar anchoring.
-- **Swiss Bento Telemetry**: Dual split-box account metrics displaying short-term session burst limits alongside long-term weekly/monthly quotas with micro progress tracks.
+- **Dual Quota Telemetry**: Dual split-box account metrics displaying short-term session burst limits alongside long-term weekly/monthly quotas with micro progress tracks.
 - **Monospaced Numerical Stability**: Tabular numeral formatting (`tnum`, `cv02`, `cv11`) prevents layout shifts during live polling updates.
 - **Threshold Color Coding**:
   - `≥ 50%`: Emerald (`text-emerald-400`) — Healthy quota
   - `15% – 49%`: Amber (`text-amber-400`) — Low quota warning
   - `< 15%`: Rose (`text-rose-400`) — Critical quota exhaustion
-- **Keyboard-First Navigation**: Direct hotkeys for instant toggling, force refreshing, and dismissing.
+- **Keyboard-First Navigation**: Direct hotkeys for instant force refreshing (`R`) and dismissing (`Esc`).
 - **Drag-to-Move & Desktop Pinning**:
   - **Drag-to-Move**: Click and drag the header bar anywhere across multiple monitors smoothly without needing to pin first.
   - **Auto-Hide on Blur**: Closes automatically when clicking away to another application (when unpinned).
@@ -76,7 +76,6 @@
 
 | Shortcut | Action | Description |
 | :--- | :--- | :--- |
-| `1` – `9` | **Toggle Account** | Instantly switches the active state of account index `#01` through `#09` |
 | `R` / `r` | **Force Refresh** | Triggers immediate telemetry synchronization from 9Router |
 | `Esc` | **Close HUD** | Minimizes/hides the floating HUD back to the system tray |
 
@@ -167,7 +166,7 @@ npm run autostart:disable
 If you are an AI coding assistant (Antigravity, Claude Code, Cursor, Windsurf, Roo Code, Copilot Workspace) or a developer extending 9Bar, please refer to the following operational documents:
 
 - **[`AGENTS.md`](./AGENTS.md)** — Core operational manual, script execution rules, and Tauri IPC contracts.
-- **[`DESIGN.md`](./DESIGN.md)** — Swiss Bento Matrix token definitions, typography rules, and anti-slop guardrails.
+- **[`DESIGN.md`](./DESIGN.md)** — Design system token definitions, typography rules, and anti-slop guardrails.
 - **[`.agents/skills/9bar-tray-ux/SKILL.md`](./.agents/skills/9bar-tray-ux/SKILL.md)** — Viewport constraints, quota anatomy, and motion engineering guidelines.
 
 ### Port & Service Mapping
@@ -194,7 +193,7 @@ cargo check --manifest-path src-tauri/Cargo.toml
 
 ```
 9bar/
-├── src/                      # React 19 Frontend (Swiss Bento Matrix)
+├── src/                      # React 19 Frontend (Telemetry HUD)
 │   ├── components/           # AccountCard, FilterBar, Header, ProgressBar, OfflineBanner
 │   ├── hooks/useQuotaData.ts # Unified polling & Tauri/Web IPC client
 │   └── index.css             # Tailwind CSS v4 & monospace typography tokens

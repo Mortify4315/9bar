@@ -1,6 +1,6 @@
-# 9Bar Design System Contract & Guidelines: Swiss Bento Matrix ⚡
+# 9Bar Design System Contract & Guidelines ⚡
 
-This document serves as the persistent single source of truth for all UI, UX, styling, and design token decisions in the **9Bar** Swiss Bento Matrix desktop HUD companion.
+This document serves as the persistent single source of truth for all UI, UX, styling, and design token decisions in the **9Bar** desktop HUD companion.
 
 ---
 
@@ -9,9 +9,9 @@ This document serves as the persistent single source of truth for all UI, UX, st
 | Role | Tailwind Class / Hex | Usage |
 | :--- | :--- | :--- |
 | **HUD Background** | `bg-[#0c0d11]` | Main window substrate |
-| **Bento Card Surface** | `bg-[#15171e]` | Account card container |
+| **Card Surface** | `bg-[#15171e]` | Account card container |
 | **Card Hover** | `hover:border-zinc-600` | Hovered card state |
-| **Subtle Divider** | `border-zinc-800` | Bento borders & dividers |
+| **Subtle Divider** | `border-zinc-800` | Card borders & dividers |
 | **Sub-cell Substrate** | `bg-zinc-950` | Telemetry metric boxes |
 | **Keycap Brand Accent** | `bg-amber-400 text-zinc-950` | `[9B]` Logo brand badge |
 | **Primary Text** | `text-zinc-100` / `text-white` | Account emails, titles |
@@ -34,23 +34,22 @@ This document serves as the persistent single source of truth for all UI, UX, st
 
 ## ⌨️ 3. Keyboard Hotkey Navigation
 
-* `[1]` – `[9]`: Toggle active status of corresponding account card index.
 * `[R]` / `[r]`: Trigger immediate force-sync and quota refresh.
 * `[Esc]`: Minimize / hide HUD window.
 
 ---
 
-## 📐 4. Layout Anatomy (Swiss Bento Matrix)
+## 📐 4. Layout Anatomy
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│  [9B] 9BAR // KERNEL   [#03 ACC]         [📌] [🔄] [↗] │  <- Swiss Top Bar (Drag Region)
+│  [9B] 9BAR // KERNEL   [#03 ACC]         [📌] [🔄] [↗] │  <- Header Bar (Drag Region)
 ├────────────────────────────────────────────────────────┤
 │  [ ALL PROVIDERS ] [ CODEX ] [ CLAUDE ] ...            │  <- Monospace Tab Strip
-│  [ ALL | LIVE | OFF ]               [Default ▼] [PRUNE]│  <- Sub-Filters & Quick Prune
+│  [ ALL | LIVE | OFF ]                      [Default ▼] │  <- Sub-Filters & Quota Sort
 ├────────────────────────────────────────────────────────┤
 │  ┌──────────────────────────────────────────────────┐  │
-│  │ [1] user@domain.com    [ID: #01 • CODEX_PLUS] [ON]│ │  <- Card Header Row
+│  │ [1] user@domain.com    [ID: #01 • CODEX_PLUS] [LIVE]│  <- Card Header (Read-only status)
 │  │ ┌──────────────────────┬──────────────────────┐  │  │
 │  │ │ SESSION QUOTA  18/100│ WEEKLY TIER    42/100│  │  │  <- Dual-Box Telemetry Grid
 │  │ │ 82%     [████████░░] │ 58%     [██████░░░░] │  │  │
@@ -58,7 +57,7 @@ This document serves as the persistent single source of truth for all UI, UX, st
 │  │ └──────────────────────┴──────────────────────┘  │  │
 │  └──────────────────────────────────────────────────┘  │
 ├────────────────────────────────────────────────────────┤
-│  HOTKEYS: 1-9 Toggle • R Sync • Esc Close              │  <- Hotkey Legend Strip
+│  HOTKEYS: R Sync • Esc Close                           │  <- Hotkey Legend Strip
 ├────────────────────────────────────────────────────────┤
 │  🟢 127.0.0.1:20128 [ESTABLISHED]       SYNC 16:18:00  │  <- Status Footer
 └────────────────────────────────────────────────────────┘

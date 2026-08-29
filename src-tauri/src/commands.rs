@@ -15,25 +15,6 @@ pub async fn fetch_quotas(base_url: Option<String>) -> Result<Vec<AccountQuotaVi
 }
 
 #[tauri::command]
-pub async fn toggle_provider_account(
-    id: String,
-    is_active: bool,
-    base_url: Option<String>,
-) -> Result<(), String> {
-    let client = RouterClient::new(base_url);
-    client.toggle_provider(&id, is_active).await
-}
-
-#[tauri::command]
-pub async fn reset_account_credits(
-    id: String,
-    base_url: Option<String>,
-) -> Result<(), String> {
-    let client = RouterClient::new(base_url);
-    client.reset_codex_credits(&id).await
-}
-
-#[tauri::command]
 pub async fn open_dashboard_url(app: AppHandle, url: Option<String>) -> Result<(), String> {
     let target = url.unwrap_or_else(|| "http://localhost:20128/dashboard/quota".to_string());
     use tauri_plugin_opener::OpenerExt;

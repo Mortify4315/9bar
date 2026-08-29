@@ -12,7 +12,7 @@ This document contains operational instructions, architecture boundaries, IPC co
   - **Frontend**: React 19, TypeScript, Tailwind CSS v4, Lucide React
   - **Bundler**: Vite 6+
   - **Companion CLI**: Node.js ES Modules (`cli.js`)
-  - **Design Standard**: Swiss Bento Matrix (defined in [`DESIGN.md`](./DESIGN.md) and [`.agents/skills/9bar-tray-ux/SKILL.md`](./.agents/skills/9bar-tray-ux/SKILL.md))
+  - **Design Standard**: Telemetry HUD & System Tray Design Guidelines (defined in [`DESIGN.md`](./DESIGN.md) and [`.agents/skills/9bar-tray-ux/SKILL.md`](./.agents/skills/9bar-tray-ux/SKILL.md))
 
 ---
 
@@ -56,10 +56,8 @@ Always prefer non-blocking / one-shot commands for validation.
 ┌───────────────────────────┐     ┌──────────────────────┐
 │ Tauri IPC (commands.rs)   │     │ Direct HTTP Fetch    │
 │ - fetch_quotas            │     │ http://127.0.0.1:    │
-│ - toggle_provider_account │     │ 20128/api/...        │
-│ - reset_account_credits   │     └──────────────────────┘
-│ - set_pinned_state        │
-│ - hide_flyout_window      │
+│ - set_pinned_state        │     │ 20128/api/...        │
+│ - hide_flyout_window      │     └──────────────────────┘
 │ - open_dashboard_url      │
 └─────────────┬─────────────┘
               ▼
@@ -70,8 +68,6 @@ Always prefer non-blocking / one-shot commands for validation.
 
 ### Tauri IPC Commands (`src-tauri/src/commands.rs`):
 - `fetch_quotas()`: Calls 9Router client API and merges usage quotas. Returns `Vec<AccountQuotaView>`.
-- `toggle_provider_account(id: String, isActive: bool)`: Proxies `PUT /api/providers/{id}` with `{ isActive }`.
-- `reset_account_credits(id: String)`: Proxies `POST /api/usage/{id}/codex-reset-credits`.
 - `set_pinned_state(pinned: bool)`: Updates window always-on-top state.
 - `hide_flyout_window()`: Hides main window to tray.
 - `open_dashboard_url()`: Opens `http://localhost:20128/dashboard/quota` via OS default browser.

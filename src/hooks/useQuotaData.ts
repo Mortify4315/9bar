@@ -89,47 +89,6 @@ export function useQuotaData(refreshIntervalMs = 30000) {
     }
   }, [isTauri]);
 
-  const toggleAccount = useCallback(async (id: string, currentActive: boolean) => {
-    const newActive = !currentActive;
-    // Optimistic UI update
-    setAccounts((prev) =>
-      prev.map((acc) => (acc.id === id ? { ...acc, is_active: newActive } : acc))
-    );
-
-    try {
-      if (isTauri) {
-        await invoke("toggle_provider_account", { id, isActive: newActive });
-      } else {
-        await fetch(`http://127.0.0.1:20128/api/providers/${id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ isActive: newActive }),
-        });
-      }
-    } catch (err) {
-      console.error("Failed to toggle account:", err);
-      // Revert on error
-      setAccounts((prev) =>
-        prev.map((acc) => (acc.id === id ? { ...acc, is_active: currentActive } : acc))
-      );
-    }
-  }, [isTauri]);
-
-  const resetCredits = useCallback(async (id: string) => {
-    try {
-      if (isTauri) {
-        await invoke("reset_account_credits", { id });
-      } else {
-        await fetch(`http://127.0.0.1:20128/api/usage/${id}/codex-reset-credits`, {
-          method: "POST",
-        });
-      }
-      await fetchQuotas(true);
-    } catch (err) {
-      console.error("Failed to reset credits:", err);
-    }
-  }, [fetchQuotas, isTauri]);
-
   const openDashboard = useCallback(async () => {
     try {
       if (isTauri) {
@@ -187,8 +146,6 @@ export function useQuotaData(refreshIntervalMs = 30000) {
     isPinned,
     togglePin,
     fetchQuotas,
-    toggleAccount,
-    resetCredits,
     openDashboard,
     hideWindow,
   };

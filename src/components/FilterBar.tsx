@@ -1,6 +1,6 @@
 import React from "react";
 import { SortMode, FilterMode } from "../types/9router";
-import { ArrowUpDown, ZapOff } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 
 interface FilterBarProps {
   providers: string[];
@@ -10,7 +10,6 @@ interface FilterBarProps {
   onFilterChange: (f: FilterMode) => void;
   sort: SortMode;
   onSortChange: (s: SortMode) => void;
-  onTurnOffEmpty?: () => void;
 }
 
 export const FilterBar: React.FC<FilterBarProps> = ({
@@ -21,11 +20,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onFilterChange,
   sort,
   onSortChange,
-  onTurnOffEmpty,
 }) => {
   return (
     <div className="flex flex-col border-b border-zinc-800 bg-[#0f1116] text-[11px] font-mono select-none">
-      {/* Top Provider Matrix Tabs */}
+      {/* Top Provider Tabs */}
       <div className="flex items-stretch border-b border-zinc-800/80 bg-zinc-950 overflow-x-auto">
         <button
           onClick={() => onProviderChange("all")}
@@ -92,32 +90,35 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           </button>
         </div>
 
-        {/* Sort and Quick Prune Action */}
-        <div className="flex items-center gap-1.5">
-          <div className="flex items-center gap-1 bg-zinc-950 px-1.5 py-0.5 rounded border border-zinc-800 text-[10px] text-zinc-400">
-            <ArrowUpDown className="w-2.5 h-2.5 text-zinc-500" />
-            <select
-              value={sort}
-              onChange={(e) => onSortChange(e.target.value as SortMode)}
-              className="bg-transparent text-[10px] text-zinc-300 focus:outline-none cursor-pointer"
-            >
-              <option value="default" className="bg-zinc-900 text-zinc-200">Default</option>
-              <option value="expiring-first" className="bg-zinc-900 text-zinc-200">Expiring</option>
-              <option value="remaining-asc" className="bg-zinc-900 text-zinc-200">% Low→High</option>
-              <option value="remaining-desc" className="bg-zinc-900 text-zinc-200">% High→Low</option>
-            </select>
-          </div>
-
-          {onTurnOffEmpty && (
-            <button
-              onClick={onTurnOffEmpty}
-              title="Prune depleted accounts (remaining ≤ 5%)"
-              className="px-1.5 py-0.5 rounded bg-zinc-950 hover:bg-rose-950/60 text-zinc-400 hover:text-rose-300 hover:border-rose-800/60 border border-zinc-800 flex items-center gap-1 cursor-pointer transition-colors text-[10px] active:scale-95"
-            >
-              <ZapOff className="w-2.5 h-2.5 text-rose-400" />
-              <span>PRUNE</span>
-            </button>
-          )}
+        {/* Sort Controls */}
+        <div
+          title="Change account sort order"
+          className={`relative flex items-center gap-1.5 px-2 py-0.5 rounded border transition-all text-[10px] cursor-pointer active:scale-[0.97] select-none ${
+            sort !== "default"
+              ? "bg-amber-950/40 border-amber-500/50 text-amber-300 shadow-xs"
+              : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+          }`}
+        >
+          <ArrowUpDown className={`w-2.5 h-2.5 shrink-0 ${sort !== "default" ? "text-amber-400" : "text-zinc-500"}`} />
+          <span className="font-bold tracking-tight pointer-events-none">
+            {sort === "default"
+              ? "DEFAULT"
+              : sort === "expiring-first"
+              ? "EXPIRING"
+              : sort === "remaining-asc"
+              ? "% LOW→HIGH"
+              : "% HIGH→LOW"}
+          </span>
+          <select
+            value={sort}
+            onChange={(e) => onSortChange(e.target.value as SortMode)}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+          >
+            <option value="default" className="bg-zinc-900 text-zinc-200">Default (Original)</option>
+            <option value="expiring-first" className="bg-zinc-900 text-zinc-200">Expiring Soonest</option>
+            <option value="remaining-asc" className="bg-zinc-900 text-zinc-200">% Lowest Quota First</option>
+            <option value="remaining-desc" className="bg-zinc-900 text-zinc-200">% Highest Quota First</option>
+          </select>
         </div>
       </div>
     </div>

@@ -140,40 +140,6 @@ impl RouterClient {
         Ok(body)
     }
 
-    pub async fn toggle_provider(&self, connection_id: &str, is_active: bool) -> Result<(), String> {
-        let url = format!("{}/api/providers/{}", self.base_url, connection_id);
-        let payload = serde_json::json!({ "isActive": is_active });
-        let resp = self
-            .http
-            .put(&url)
-            .json(&payload)
-            .send()
-            .await
-            .map_err(|e| format!("Network error: {}", e))?;
-
-        if !resp.status().is_success() {
-            return Err(format!("Failed to update provider: HTTP {}", resp.status()));
-        }
-
-        Ok(())
-    }
-
-    pub async fn reset_codex_credits(&self, connection_id: &str) -> Result<(), String> {
-        let url = format!("{}/api/usage/{}/codex-reset-credits", self.base_url, connection_id);
-        let resp = self
-            .http
-            .post(&url)
-            .send()
-            .await
-            .map_err(|e| format!("Network error: {}", e))?;
-
-        if !resp.status().is_success() {
-            return Err(format!("Failed to reset credits: HTTP {}", resp.status()));
-        }
-
-        Ok(())
-    }
-
     pub async fn fetch_all_quotas(&self) -> Result<Vec<AccountQuotaView>, String> {
         let connections = self.fetch_providers().await?;
         let mut results = Vec::new();

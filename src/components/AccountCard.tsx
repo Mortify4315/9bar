@@ -1,20 +1,16 @@
 import React from "react";
 import { AccountQuotaView, QuotaDetail } from "../types/9router";
 import { formatCountdown } from "../utils/formatTime";
-import { AlertCircle, RotateCcw } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 
 interface AccountCardProps {
   account: AccountQuotaView;
   index?: number;
-  onToggle: (id: string, currentActive: boolean) => void;
-  onResetCredits: (id: string) => void;
 }
 
 export const AccountCard: React.FC<AccountCardProps> = ({
   account,
   index,
-  onToggle,
-  onResetCredits,
 }) => {
   const isCodex = account.provider.toLowerCase().includes("codex");
   const isClaude = account.provider.toLowerCase().includes("claude");
@@ -22,8 +18,8 @@ export const AccountCard: React.FC<AccountCardProps> = ({
   const planLabel = account.plan ? account.plan.toUpperCase() : "STD";
   const accountIdBadge = index !== undefined ? `#${(index + 1).toString().padStart(2, "0")}` : `#${account.id.slice(0, 3).toUpperCase()}`;
 
-  // Helper for single bento box metrics
-  const renderBentoBox = (title: string, quota?: QuotaDetail) => {
+  // Helper for single quota metric box
+  const renderQuotaBox = (title: string, quota?: QuotaDetail) => {
     if (!quota) return null;
     const used = quota.used ?? 0;
     const total = quota.total ?? 100;
@@ -77,7 +73,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
           : "bg-[#101217]/60 border-zinc-900 opacity-50 hover:opacity-80"
       }`}
     >
-      {/* Bento Header */}
+      {/* Account Header */}
       <div className="flex items-start justify-between pb-2 border-b border-zinc-800/80 gap-2">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
@@ -99,43 +95,20 @@ export const AccountCard: React.FC<AccountCardProps> = ({
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
-          {/* Reset credits available badge / action */}
-          {account.reset_credits_available > 0 && (
-            <button
-              onClick={() => onResetCredits(account.id)}
-              title={`${account.reset_credits_available} Reset Credit Available - Click to Reset`}
-              className="text-[9px] font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 px-1.5 py-0.5 rounded flex items-center gap-1 border border-amber-500/40 cursor-pointer active:scale-95 transition-all"
-            >
-              <RotateCcw className="w-2.5 h-2.5" />
-              <span>{account.reset_credits_available}_CRED</span>
-            </button>
-          )}
-
           {/* Active status pill */}
           <span
-            className={`text-[9px] font-bold px-1.5 py-0.2 rounded border ${
+            className={`text-[9px] font-bold px-1.5 py-0.5 rounded border tracking-wider ${
               account.is_active
-                ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/40"
+                ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/40 shadow-xs"
                 : "bg-zinc-900 text-zinc-500 border-zinc-800"
             }`}
           >
             {account.is_active ? "LIVE" : "OFF"}
           </span>
-
-          {/* Tactile Toggle Switch */}
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={account.is_active}
-              onChange={() => onToggle(account.id, account.is_active)}
-              className="sr-only peer"
-            />
-            <div className="w-6 h-3.5 bg-zinc-900 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-2.5 peer-checked:after:bg-emerald-400 after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-zinc-500 after:rounded-full after:h-3 after:w-3 after:transition-all border border-zinc-700 peer-checked:border-emerald-500/50 peer-checked:bg-emerald-950"></div>
-          </label>
         </div>
       </div>
 
-      {/* Bento Telemetry Split-Box Grid */}
+      {/* Quota Telemetry Split-Box Grid */}
       {account.error ? (
         <div className="flex items-center gap-1.5 text-rose-400 text-[10px] py-2 mt-1">
           <AlertCircle className="w-3.5 h-3.5 shrink-0" />
@@ -147,15 +120,15 @@ export const AccountCard: React.FC<AccountCardProps> = ({
             hasDualQuotas ? "grid-cols-2" : "grid-cols-1"
           } gap-2 pt-2 text-[10px]`}
         >
-          {account.session_quota && renderBentoBox("SESSION QUOTA", account.session_quota)}
-          {account.weekly_quota && renderBentoBox("WEEKLY TIER", account.weekly_quota)}
+          {account.session_quota && renderQuotaBox("SESSION QUOTA", account.session_quota)}
+          {account.weekly_quota && renderQuotaBox("WEEKLY TIER", account.weekly_quota)}
 
           {/* Fallback for single generic quotas */}
           {!account.session_quota &&
             !account.weekly_quota &&
             Object.entries(account.quotas).map(([k, q]) => (
               <React.Fragment key={k}>
-                {renderBentoBox(k.toUpperCase(), q)}
+                {renderQuotaBox(k.toUpperCase(), q)}
               </React.Fragment>
             ))}
         </div>

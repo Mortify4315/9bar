@@ -124,8 +124,6 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             fetch_quotas,
-            toggle_provider_account,
-            reset_account_credits,
             open_dashboard_url,
             hide_flyout_window,
             set_pinned_state,
