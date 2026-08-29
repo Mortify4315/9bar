@@ -15,6 +15,10 @@
   Monitor AI provider quotas, rate-limit countdowns, and active accounts in real time with zero browser tabs.
 </p>
 
+<p align="center">
+  <img src="assets/9bar-hud-preview.png" alt="9Bar Swiss Bento HUD Preview" width="380" />
+</p>
+
 </div>
 
 ---
@@ -25,23 +29,23 @@
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│  [9B] 9BAR // KERNEL   [#03 ACC]         [📌] [🔄] [↗] │  <- Swiss Top Bar (Drag Region)
+│  [9B] 9BAR // KERNEL   [#32 ACC]         [📌] [🔄] [↗] │  <- Swiss Top Bar (Drag Region)
 ├────────────────────────────────────────────────────────┤
-│  [ ALL PROVIDERS ] [ CODEX ] [ CLAUDE ] ...            │  <- Monospace Provider Tabs
+│  [ ALL PROVIDERS ] [ CODEX ] [ OPENCODE-GO ] [ QODER ] │  <- Monospace Provider Tabs
 │  [ ALL | LIVE | OFF ]               [Default ▼] [PRUNE]│  <- Status Filters & Quick Prune
 ├────────────────────────────────────────────────────────┤
 │  ┌──────────────────────────────────────────────────┐  │
 │  │ [1] user@domain.com    [ID: #01 • CODEX_PLUS] [ON]│ │  <- Account Header Row
 │  │ ┌──────────────────────┬──────────────────────┐  │  │
-│  │ │ SESSION QUOTA  18/100│ WEEKLY TIER    42/100│  │  │  <- Dual-Box Telemetry Grid
-│  │ │ 82%     [████████░░] │ 58%     [██████░░░░] │  │  │
-│  │ │ Reset: 32m           │ Reset: 4d 12h        │  │  │
+│  │ │ SESSION QUOTA   0/100│ WEEKLY TIER    45/100│  │  │  <- Dual-Box Telemetry Grid
+│  │ │ 100%    [██████████] │ 55%     [██████░░░░] │  │  │
+│  │ │ Reset: in 4h 59m     │ Reset: in 5d 6h      │  │  │
 │  │ └──────────────────────┴──────────────────────┘  │  │
 │  └──────────────────────────────────────────────────┘  │
 ├────────────────────────────────────────────────────────┤
 │  HOTKEYS: 1-9 Toggle • R Sync • Esc Close              │  <- Hotkey Legend
 ├────────────────────────────────────────────────────────┤
-│  🟢 127.0.0.1:20128 [ESTABLISHED]       SYNC 16:18:00  │  <- Status Footer
+│  🟢 127.0.0.1:20128 [ESTABLISHED]       SYNC 17:11:58  │  <- Status Footer
 └────────────────────────────────────────────────────────┘
 ```
 
@@ -100,11 +104,13 @@ npm install
 ### Running the Desktop HUD
 
 ```bash
-# Run in development mode (with hot reload)
+# Run in development mode (Vite frontend only)
 npm run dev
+
+# Run desktop HUD with live Tauri backend & hot reload
 npm run tauri dev
 
-# Run using the interactive CLI menu
+# Run using the interactive CLI companion menu
 npm start
 ```
 
@@ -156,12 +162,40 @@ npm run autostart:disable
 
 ---
 
+## 🤖 AI Agents & Contributor Guide
+
+If you are an AI coding assistant (Antigravity, Claude Code, Cursor, Windsurf, Roo Code, Copilot Workspace) or a developer extending 9Bar, please refer to the following operational documents:
+
+- **[`AGENTS.md`](./AGENTS.md)** — Core operational manual, script execution rules, and Tauri IPC contracts.
+- **[`DESIGN.md`](./DESIGN.md)** — Swiss Bento Matrix token definitions, typography rules, and anti-slop guardrails.
+- **[`.agents/skills/9bar-tray-ux/SKILL.md`](./.agents/skills/9bar-tray-ux/SKILL.md)** — Viewport constraints, quota anatomy, and motion engineering guidelines.
+
+### Port & Service Mapping
+
+| Service | Port | Endpoint | Purpose |
+| :--- | :--- | :--- | :--- |
+| **9Router** | `20128` | `/api/providers/client` | Local upstream telemetry provider |
+| **9Bar Web HUD** | `20129` | `http://localhost:20129` | Static browser fallback |
+| **Vite Dev** | `1420` | `http://localhost:1420` | Tauri frontend dev server |
+
+### Verification Commands
+
+```bash
+# Typecheck & build frontend bundle (one-shot verification)
+npm run build
+
+# Check Rust backend compilation
+cargo check --manifest-path src-tauri/Cargo.toml
+```
+
+---
+
 ## Architecture
 
 ```
 9bar/
 ├── src/                      # React 19 Frontend (Swiss Bento Matrix)
-│   ├── components/           # AccountCard, FilterBar, Header, ProgressBar
+│   ├── components/           # AccountCard, FilterBar, Header, ProgressBar, OfflineBanner
 │   ├── hooks/useQuotaData.ts # Unified polling & Tauri/Web IPC client
 │   └── index.css             # Tailwind CSS v4 & monospace typography tokens
 ├── src-tauri/                # Tauri 2.0 Rust Backend
@@ -169,9 +203,12 @@ npm run autostart:disable
 │   ├── src/commands.rs       # Tauri IPC commands & window management
 │   ├── src/tray.rs           # Native tray creation & smart taskbar positioning
 │   └── src/lib.rs            # Application lifecycle & drag-aware focus handler
+├── assets/                   # Screenshots & visual media
 ├── cli.js                    # Unified Node.js CLI launcher
 ├── launch-9bar.vbs           # Silent background runner for Windows
-└── DESIGN.md                 # Design system contract & token specifications
+├── AGENTS.md                 # Agent operational handbook & IPC contract
+├── DESIGN.md                 # Design system contract & token specifications
+└── .agents/skills/           # Specialized agent skills (9bar-tray-ux)
 ```
 
 ---
