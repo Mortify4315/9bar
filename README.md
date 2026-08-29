@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/9bar-hud-preview.png" alt="9Bar Swiss Bento HUD Preview" width="380" />
+  <img src="assets/preview.png" alt="9Bar Swiss Bento HUD Preview" width="380" />
 </p>
 
 </div>
