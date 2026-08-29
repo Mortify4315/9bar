@@ -137,7 +137,7 @@ export function App() {
   }, [filteredAndSortedAccounts, fetchQuotas, hideWindow, toggleAccount]);
 
   return (
-    <div className="w-[390px] h-[540px] bg-[#0c0d11] text-zinc-100 border border-zinc-700/80 rounded-xl shadow-2xl overflow-hidden flex flex-col font-mono select-none">
+    <div className="w-full h-full bg-[#0c0d11] text-zinc-100 border border-zinc-700/80 rounded-xl shadow-2xl overflow-hidden flex flex-col font-mono select-none">
       {/* Header with Draggable Region & Pin Toggle */}
       <Header
         accountCount={filteredAndSortedAccounts.length}

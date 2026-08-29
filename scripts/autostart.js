@@ -1,4 +1,4 @@
-﻿const fs = require("fs");
+const fs = require("fs");
 const path = require("path");
 
 const APP_NAME = "9bar";
@@ -11,7 +11,7 @@ function getStartupPath() {
 
 function enableAutoStart() {
   const startupPath = getStartupPath();
-  const vbsContent = `Set WshShell = CreateObject("WScript.Shell")\nWshShell.Run """${exePath}""", 0, False\n`;
+  const vbsContent = `Set WshShell = CreateObject("WScript.Shell")\nWshShell.Run """${exePath}""", 1, False\n`;
   fs.writeFileSync(startupPath, vbsContent, "utf8");
   console.log(`✅ Auto-start enabled: ${startupPath}`);
 }

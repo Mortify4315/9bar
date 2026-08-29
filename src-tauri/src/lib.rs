@@ -3,25 +3,42 @@ pub mod commands;
 pub mod tray;
 
 use commands::*;
-use std::fs::OpenOptions;
-use std::io::Write;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use tauri::WindowEvent;
 
-fn log_msg(msg: &str) {
-    if let Ok(mut f) = OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open("c:\\Users\\Levi\\projects\\9bar\\debug.log")
-    {
-        let _ = writeln!(f, "{}", msg);
-    }
+#[cfg(windows)]
+#[repr(C)]
+#[derive(Default)]
+struct POINT {
+    x: i32,
+    y: i32,
 }
 
 #[cfg(windows)]
 extern "system" {
     fn GetAsyncKeyState(vKey: i32) -> i16;
+    fn GetCursorPos(lpPoint: *mut POINT) -> i32;
+}
+
+#[cfg(windows)]
+fn is_cursor_inside_window(win: &tauri::Window) -> bool {
+    unsafe {
+        let mut pt = POINT::default();
+        if GetCursorPos(&mut pt) != 0 {
+            if let (Ok(pos), Ok(size)) = (win.outer_position(), win.outer_size()) {
+                let x = pt.x;
+                let y = pt.y;
+                return x >= pos.x && x <= pos.x + size.width as i32 && y >= pos.y && y <= pos.y + size.height as i32;
+            }
+        }
+    }
+    false
+}
+
+#[cfg(not(windows))]
+fn is_cursor_inside_window(_win: &tauri::Window) -> bool {
+    false
 }
 
 #[cfg(windows)]
@@ -38,25 +55,26 @@ fn is_left_mouse_down() -> bool {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    log_msg("=== 9Bar run() starting ===");
     let is_pinned = Arc::new(AtomicBool::new(false));
+    let last_shown_ms = Arc::new(std::sync::atomic::AtomicU64::new(0));
+    let is_quitting = Arc::new(AtomicBool::new(false));
 
-    log_msg("Configuring tauri builder...");
     let is_pinned_clone = is_pinned.clone();
+    let last_shown_clone1 = last_shown_ms.clone();
+    let last_shown_clone2 = last_shown_ms.clone();
+    let is_quitting_tray = is_quitting.clone();
+    let is_quitting_run = is_quitting.clone();
+
     let builder = tauri::Builder::default()
         .manage(AppState {
             is_pinned: is_pinned.clone(),
+            last_shown_ms: last_shown_ms.clone(),
         })
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_positioner::init())
-        .setup(|app| {
-            log_msg("INSIDE SETUP HOOK");
+        .setup(move |app| {
             let handle = app.handle().clone();
-            if let Err(e) = tray::setup_system_tray(&handle) {
-                log_msg(&format!("Error setting up system tray: {:?}", e));
-            } else {
-                log_msg("System tray setup successfully");
-            }
+            tray::setup_system_tray(&handle, last_shown_clone1, is_quitting_tray)?;
             Ok(())
         })
         .on_window_event(move |window, event| {
@@ -68,9 +86,17 @@ pub fn run() {
                 WindowEvent::Focused(false) => {
                     let win = window.clone();
                     let is_pinned_clone = is_pinned_clone.clone();
+                    let last_shown_clone = last_shown_clone2.clone();
                     tauri::async_runtime::spawn(async move {
-                        // 1. Initial debounce
-                        tokio::time::sleep(tokio::time::Duration::from_millis(200)).await;
+                        // 1. Initial grace period
+                        tokio::time::sleep(tokio::time::Duration::from_millis(300)).await;
+
+                        let now = tray::current_time_ms();
+                        let last_shown = last_shown_clone.load(Ordering::Relaxed);
+                        // If window was just opened, ignore immediate blur from tray dismiss
+                        if now.saturating_sub(last_shown) < 800 {
+                            return;
+                        }
 
                         // 2. If user is holding left click (dragging header or interacting), wait until release
                         while is_left_mouse_down() {
@@ -80,7 +106,12 @@ pub fn run() {
                         // 3. Grace period after mouse release
                         tokio::time::sleep(tokio::time::Duration::from_millis(150)).await;
 
-                        // 4. If window is still unpinned and not focused, hide
+                        // 4. If mouse is hovering over the window, don't hide
+                        if is_cursor_inside_window(&win) {
+                            return;
+                        }
+
+                        // 5. If window is still unpinned and not focused, hide
                         if let Ok(focused) = win.is_focused() {
                             if !focused && !is_pinned_clone.load(Ordering::Relaxed) {
                                 let _ = win.hide();
@@ -102,33 +133,19 @@ pub fn run() {
             move_window_by,
         ]);
 
-    log_msg("Building tauri app...");
     let app = match builder.build(tauri::generate_context!()) {
-        Ok(app) => {
-            log_msg("Tauri app built successfully");
-            app
-        }
+        Ok(app) => app,
         Err(e) => {
-            log_msg(&format!("ERROR building tauri app: {:?}", e));
+            eprintln!("Error building 9Bar application: {:?}", e);
             return;
         }
     };
 
-    log_msg("Entering app.run loop...");
-    app.run(|_app_handle, event| {
-        log_msg(&format!("RunEvent: {:?}", event));
-        match event {
-            tauri::RunEvent::ExitRequested { api, code, .. } => {
-                log_msg(&format!("ExitRequested with code: {:?}", code));
-                if code.is_none() {
-                    api.prevent_exit();
-                }
+    app.run(move |_app_handle, event| {
+        if let tauri::RunEvent::ExitRequested { api, .. } = event {
+            if !is_quitting_run.load(Ordering::Relaxed) {
+                api.prevent_exit();
             }
-            tauri::RunEvent::Ready => {
-                log_msg("RunEvent::Ready received!");
-            }
-            _ => {}
         }
     });
-    log_msg("app.run exited");
 }

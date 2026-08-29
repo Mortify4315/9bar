@@ -1,10 +1,11 @@
 use crate::client::{AccountQuotaView, RouterClient};
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Arc;
 use tauri::{AppHandle, Manager, State};
 
 pub struct AppState {
     pub is_pinned: Arc<AtomicBool>,
+    pub last_shown_ms: Arc<AtomicU64>,
 }
 
 #[tauri::command]

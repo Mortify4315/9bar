@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node cli.js",
     "tray": "node cli.js --tray",
-    "open": "node cli.js --open",
+    "status": "node cli.js --status",
     "dev": "vite",
     "build": "tsc && vite build",
     "build:app": "tauri build",
