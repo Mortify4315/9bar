@@ -5,13 +5,11 @@ import { formatCountdown } from "../utils/formatTime";
 interface ProgressBarProps {
   label: "session" | "weekly" | string;
   quota?: QuotaDetail;
-  colorType?: "emerald" | "amber" | "blue" | "purple";
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({
   label,
   quota,
-  colorType = label === "weekly" ? "amber" : "emerald",
 }) => {
   if (!quota) return null;
 
@@ -20,34 +18,42 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   const remaining = quota.remaining ?? (total > 0 ? Math.max(0, Math.round(((total - used) / total) * 100)) : 100);
   const countdown = formatCountdown(quota.resetAt);
 
-  const isAmber = colorType === "amber";
-  const dotColor = isAmber ? "bg-amber-400" : "bg-emerald-400";
-  const textColor = isAmber ? "text-amber-400" : "text-emerald-400";
-  const barGradient = isAmber
-    ? "bg-gradient-to-r from-amber-500 to-yellow-400"
-    : "bg-gradient-to-r from-emerald-500 to-teal-400";
+  // Dynamic semantic color threshold
+  let textColor = "text-emerald-400";
+  let barColor = "bg-emerald-400";
+  let dotColor = "bg-emerald-400";
+
+  if (remaining < 15) {
+    textColor = "text-rose-400";
+    barColor = "bg-rose-500";
+    dotColor = "bg-rose-500";
+  } else if (remaining < 50) {
+    textColor = "text-amber-400";
+    barColor = "bg-amber-400";
+    dotColor = "bg-amber-400";
+  }
 
   return (
-    <div className="space-y-1">
-      <div className="flex items-center justify-between text-[11px]">
-        <span className="text-gray-400 flex items-center gap-1.5 font-medium">
+    <div className="space-y-1 font-mono text-[10px]">
+      <div className="flex items-center justify-between">
+        <span className="text-zinc-400 flex items-center gap-1 uppercase tracking-wider font-semibold text-[9px]">
           <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`}></span>
           {label}
         </span>
-        <span className="font-mono text-gray-300">
-          <span className="text-gray-400">{used}/{total}</span>
-          <span className={`font-semibold ml-1.5 ${textColor}`}>{remaining}%</span>
+        <span className="tabular-nums">
+          <span className="text-zinc-500">{used}/{total}</span>
+          <span className={`font-bold ml-1 ${textColor}`}>{remaining}%</span>
           {countdown && (
-            <span className="text-gray-500 text-[10px] ml-1">
-              {countdown}
+            <span className="text-zinc-400 ml-1">
+              • {countdown}
             </span>
           )}
         </span>
       </div>
 
-      <div className="w-full bg-gray-800/90 h-1.5 rounded-full overflow-hidden border border-gray-700/30">
+      <div className="w-full bg-zinc-950 h-1.5 rounded-xs overflow-hidden border border-zinc-800/90">
         <div
-          className={`h-full rounded-full transition-all duration-500 ${barGradient}`}
+          className={`h-full rounded-xs transition-all duration-300 ${barColor}`}
           style={{ width: `${Math.min(100, Math.max(0, remaining))}%` }}
         />
       </div>

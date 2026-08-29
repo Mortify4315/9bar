@@ -14,16 +14,16 @@
       {
         "label": "main",
         "title": "9Bar",
-        "width": 380,
-        "height": 520,
+        "width": 390,
+        "height": 540,
         "resizable": false,
         "fullscreen": false,
         "decorations": false,
-        "transparent": true,
+        "transparent": false,
         "alwaysOnTop": true,
         "visible": false,
         "skipTaskbar": true,
-        "shadow": true
+        "shadow": false
       }
     ],
     "security": {

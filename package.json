@@ -3,9 +3,18 @@
   "version": "1.0.0",
   "description": "9Bar - Lightweight Menu Bar & System Tray Companion for 9Router",
   "type": "module",
+  "bin": {
+    "9bar": "./cli.js"
+  },
   "scripts": {
+    "start": "node cli.js",
+    "tray": "node cli.js --tray",
+    "open": "node cli.js --open",
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:app": "tauri build",
+    "autostart": "node scripts/autostart.js enable",
+    "autostart:disable": "node scripts/autostart.js disable",
     "preview": "vite preview",
     "tauri": "tauri"
   },

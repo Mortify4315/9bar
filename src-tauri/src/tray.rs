@@ -5,19 +5,47 @@ use tauri::{
 };
 use tauri_plugin_positioner::{Position, WindowExt};
 
-pub fn show_and_position_window(window: &WebviewWindow) {
+pub fn show_and_position_window(window: &WebviewWindow, tray_rect: Option<tauri::Rect>) {
     if let Ok(Some(monitor)) = window.current_monitor() {
         let scale = monitor.scale_factor();
-        let size = monitor.size();
-        let pos = monitor.position();
+        let mon_size = monitor.size();
+        let mon_pos = monitor.position();
 
-        let win_w = (380.0 * scale) as i32;
-        let win_h = (520.0 * scale) as i32;
-        let margin_x = (16.0 * scale) as i32;
-        let margin_y = (60.0 * scale) as i32; // position above Windows taskbar
+        let win_w = (390.0 * scale) as i32;
+        let win_h = (540.0 * scale) as i32;
+        let pad_x = (16.0 * scale) as i32;
+        let pad_y = (12.0 * scale) as i32;
 
-        let target_x = pos.x + size.width as i32 - win_w - margin_x;
-        let target_y = pos.y + size.height as i32 - win_h - margin_y;
+        let (target_x, target_y) = if let Some(rect) = tray_rect {
+            let tray_pos = match rect.position {
+                tauri::Position::Physical(p) => p,
+                tauri::Position::Logical(l) => l.to_physical(scale),
+            };
+            let tray_size = match rect.size {
+                tauri::Size::Physical(s) => s,
+                tauri::Size::Logical(l) => l.to_physical(scale),
+            };
+
+            // If tray is in the bottom half of the monitor (standard Windows taskbar), place above tray
+            let y = if tray_pos.y > mon_pos.y + (mon_size.height as i32 / 2) {
+                tray_pos.y - win_h - pad_y
+            } else {
+                tray_pos.y + tray_size.height as i32 + pad_y
+            };
+
+            // Center horizontally over tray icon, clamped inside monitor boundaries
+            let center_x = tray_pos.x + (tray_size.width as i32 / 2) - (win_w / 2);
+            let min_x = mon_pos.x + pad_x;
+            let max_x = mon_pos.x + mon_size.width as i32 - win_w - pad_x;
+            let x = center_x.clamp(min_x, max_x);
+
+            (x, y)
+        } else {
+            // Default fallback: bottom right corner above taskbar
+            let x = mon_pos.x + mon_size.width as i32 - win_w - pad_x;
+            let y = mon_pos.y + mon_size.height as i32 - win_h - (60.0 * scale) as i32;
+            (x, y)
+        };
 
         let _ = window.set_position(tauri::Position::Physical(tauri::PhysicalPosition {
             x: target_x,
@@ -39,15 +67,20 @@ pub fn setup_system_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Erro
         .items(&[&show_item, &dashboard_item, &quit_item])
         .build()?;
 
-    let _tray = TrayIconBuilder::new()
+    let icon = match app.default_window_icon() {
+        Some(icon) => icon.clone(),
+        None => tauri::include_image!("icons/32x32.png"),
+    };
+
+    let tray = TrayIconBuilder::with_id("main-tray")
         .tooltip("9Bar - 9Router Quota Companion")
-        .icon(app.default_window_icon().unwrap().clone())
+        .icon(icon)
         .menu(&menu)
         .show_menu_on_left_click(false)
         .on_menu_event(|app, event| match event.id().as_ref() {
             "show" => {
                 if let Some(window) = app.get_webview_window("main") {
-                    show_and_position_window(&window);
+                    show_and_position_window(&window, None);
                 }
             }
             "dashboard" => {
@@ -64,6 +97,7 @@ pub fn setup_system_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Erro
             if let TrayIconEvent::Click {
                 button: MouseButton::Left,
                 button_state: MouseButtonState::Up,
+                rect,
                 ..
             } = event
             {
@@ -72,12 +106,14 @@ pub fn setup_system_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Erro
                     if window.is_visible().unwrap_or(false) {
                         let _ = window.hide();
                     } else {
-                        show_and_position_window(&window);
+                        show_and_position_window(&window, Some(rect));
                     }
                 }
             }
         })
         .build(app)?;
+
+    app.manage(tray);
 
     Ok(())
 }
