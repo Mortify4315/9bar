@@ -1,10 +1,10 @@
 [package]
-name = "app"
+name = "ninebar"
 version = "0.1.0"
-description = "9Router Quota Bar"
-authors = ["you"]
-license = ""
-repository = ""
+description = "9Bar - Lightweight Menu Bar & System Tray Companion for 9Router"
+authors = ["Levi"]
+license = "MIT"
+repository = "https://github.com/Mortify4315/9bar"
 edition = "2021"
 rust-version = "1.77.2"
 

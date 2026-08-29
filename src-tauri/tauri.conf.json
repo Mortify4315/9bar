@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "9router-tray",
-  "version": "0.1.0",
-  "identifier": "com.levy.nine-router-tray",
+  "productName": "9Bar",
+  "version": "1.0.0",
+  "identifier": "com.mortify.ninebar",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:1420",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "9Router Quota",
+        "title": "9Bar",
         "width": 380,
         "height": 520,
         "resizable": false,

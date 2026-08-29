@@ -1,7 +1,7 @@
 {
-  "name": "9router-tray",
+  "name": "9bar",
   "version": "1.0.0",
-  "description": "9Router Quota Bar",
+  "description": "9Bar - Lightweight Menu Bar & System Tray Companion for 9Router",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,7 +9,16 @@
     "preview": "vite preview",
     "tauri": "tauri"
   },
-  "keywords": [],
+  "keywords": [
+    "9router",
+    "system-tray",
+    "menu-bar",
+    "quota-tracker",
+    "rate-limits",
+    "tauri",
+    "codex",
+    "claude"
+  ],
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "@tauri-apps/cli": "^2.11.4",

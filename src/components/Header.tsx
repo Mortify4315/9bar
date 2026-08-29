@@ -45,13 +45,13 @@ export const Header: React.FC<HeaderProps> = ({
       className="flex items-center justify-between px-3.5 py-2.5 border-b border-gray-800/80 bg-[#12151d] cursor-grab active:cursor-grabbing select-none"
     >
       <div className="flex items-center gap-2 pointer-events-none">
-        <div className="w-6 h-6 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-xs font-bold shadow-sm">
-          9R
+        <div className="w-6 h-6 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-xs font-black shadow-sm tracking-tight">
+          9B
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-xs font-bold text-white tracking-wide">9Router Quota</span>
-          <span className="text-[10px] bg-emerald-500/15 text-emerald-300 px-1.5 py-0.2 rounded-full border border-emerald-500/25 font-mono">
-            {accountCount}
+          <span className="text-xs font-bold text-white tracking-wide">9Bar</span>
+          <span className="text-[10px] bg-emerald-500/15 text-emerald-300 px-1.5 py-0.2 rounded-full border border-emerald-500/25 font-mono font-medium">
+            {accountCount} {accountCount === 1 ? "account" : "accounts"}
           </span>
         </div>
       </div>
@@ -88,7 +88,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Open Web Dashboard */}
         <button
           onClick={onOpenDashboard}
-          title="Open Web Dashboard"
+          title="Open 9Router Web Dashboard"
           className="w-6.5 h-6.5 rounded-lg bg-gray-800/80 hover:bg-gray-700 text-gray-300 hover:text-white flex items-center justify-center transition-all cursor-pointer border border-gray-700/50"
         >
           <ExternalLink className="w-3.5 h-3.5" />

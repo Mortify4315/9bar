@@ -31,16 +31,16 @@ pub fn show_and_position_window(window: &WebviewWindow) {
 }
 
 pub fn setup_system_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
-    let show_item = MenuItemBuilder::with_id("show", "Show 9Router Quota").build(app)?;
-    let dashboard_item = MenuItemBuilder::with_id("dashboard", "Open Web Dashboard").build(app)?;
-    let quit_item = MenuItemBuilder::with_id("quit", "Quit").build(app)?;
+    let show_item = MenuItemBuilder::with_id("show", "Show 9Bar").build(app)?;
+    let dashboard_item = MenuItemBuilder::with_id("dashboard", "Open 9Router Dashboard").build(app)?;
+    let quit_item = MenuItemBuilder::with_id("quit", "Quit 9Bar").build(app)?;
 
     let menu = MenuBuilder::new(app)
         .items(&[&show_item, &dashboard_item, &quit_item])
         .build()?;
 
     let _tray = TrayIconBuilder::new()
-        .tooltip("9Router Quota Bar")
+        .tooltip("9Bar - 9Router Quota Companion")
         .icon(app.default_window_icon().unwrap().clone())
         .menu(&menu)
         .show_menu_on_left_click(false)
