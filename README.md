@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/preview.png" alt="9Bar Telemetry HUD Preview" width="380" />
+  <img src="assets/ss.png" alt="9Bar Telemetry HUD Preview" width="380" />
 </p>
 
 </div>
