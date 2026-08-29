@@ -94,7 +94,7 @@ export function useQuotaData(refreshIntervalMs = 30000) {
       if (isTauri) {
         await invoke("open_dashboard_url", {});
       } else {
-        window.open("http://localhost:20128/dashboard/quota", "_blank");
+        window.open("http://127.0.0.1:20128/dashboard/quota", "_blank");
       }
     } catch (err) {
       console.error("Failed to open dashboard:", err);

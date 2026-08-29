@@ -70,7 +70,7 @@ Always prefer non-blocking / one-shot commands for validation.
 - `fetch_quotas()`: Calls 9Router client API and merges usage quotas. Returns `Vec<AccountQuotaView>`.
 - `set_pinned_state(pinned: bool)`: Updates window always-on-top state.
 - `hide_flyout_window()`: Hides main window to tray.
-- `open_dashboard_url()`: Opens `http://localhost:20128/dashboard/quota` via OS default browser.
+- `open_dashboard_url()`: Opens `http://127.0.0.1:20128/dashboard/quota` via OS default browser.
 
 > [!IMPORTANT]
 > When editing `src/hooks/useQuotaData.ts`, **always maintain parity** between Tauri IPC invocations and browser `fetch` fallbacks.

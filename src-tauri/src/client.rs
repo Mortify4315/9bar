@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::Duration;
 
-const DEFAULT_BASE_URL: &str = "http://localhost:20128";
+const ROUTER_BASE_URL: &str = "http://127.0.0.1:20128";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProviderConnection {
@@ -86,14 +86,13 @@ pub struct RouterClient {
 }
 
 impl RouterClient {
-    pub fn new(base_url: Option<String>) -> Self {
-        let base = base_url.unwrap_or_else(|| DEFAULT_BASE_URL.to_string());
+    pub fn new() -> Self {
         let http = Client::builder()
             .timeout(Duration::from_secs(5))
             .build()
             .unwrap_or_default();
         Self {
-            base_url: base,
+            base_url: ROUTER_BASE_URL.to_string(),
             http,
         }
     }

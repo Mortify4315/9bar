@@ -22,45 +22,50 @@ export function startStaticServer(port = 20129) {
   const distDir = path.resolve(__dirname, "..", "..", "dist");
 
   const server = http.createServer((req, res) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-
-    if (req.method === "OPTIONS") {
-      res.writeHead(204);
-      res.end();
+    if (req.method !== "GET" && req.method !== "HEAD") {
+      res.writeHead(405, { Allow: "GET, HEAD" });
+      res.end("Method Not Allowed");
       return;
     }
 
-    let reqPath = req.url.split("?")[0];
+    let reqPath;
+    try {
+      reqPath = decodeURIComponent(new URL(req.url, "http://127.0.0.1").pathname);
+    } catch {
+      res.writeHead(400, { "Content-Type": "text/plain" });
+      res.end("Bad Request");
+      return;
+    }
+
     if (reqPath === "/" || reqPath === "") reqPath = "/index.html";
 
-    const filePath = path.join(distDir, reqPath);
-
-    if (!filePath.startsWith(distDir)) {
-      res.writeHead(403);
+    const filePath = path.resolve(distDir, reqPath.replace(/^[/\\]+/, ""));
+    const relative = path.relative(distDir, filePath);
+    if (relative.startsWith("..") || path.isAbsolute(relative)) {
+      res.writeHead(403, { "Content-Type": "text/plain" });
       res.end("Forbidden");
       return;
     }
+
+    const send = (status, contentType, data) => {
+      res.writeHead(status, { "Content-Type": contentType });
+      res.end(req.method === "HEAD" ? undefined : data);
+    };
 
     fs.readFile(filePath, (err, data) => {
       if (err) {
         fs.readFile(path.join(distDir, "index.html"), (err2, indexData) => {
           if (err2) {
-            res.writeHead(404, { "Content-Type": "text/plain" });
-            res.end("9Bar UI not built. Run 'npm run build' first.");
+            send(404, "text/plain", "9Bar UI not built. Run 'npm run build' first.");
           } else {
-            res.writeHead(200, { "Content-Type": "text/html" });
-            res.end(indexData);
+            send(200, "text/html", indexData);
           }
         });
         return;
       }
 
       const ext = path.extname(filePath).toLowerCase();
-      const contentType = MIME_TYPES[ext] || "application/octet-stream";
-      res.writeHead(200, { "Content-Type": contentType });
-      res.end(data);
+      send(200, MIME_TYPES[ext] || "application/octet-stream", data);
     });
   });
 

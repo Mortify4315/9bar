@@ -13,8 +13,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "build:app": "tauri build",
-    "autostart": "node scripts/autostart.js enable",
-    "autostart:disable": "node scripts/autostart.js disable",
+    "autostart": "node scripts/autostart.cjs enable",
+    "autostart:disable": "node scripts/autostart.cjs disable",
     "preview": "vite preview",
     "tauri": "tauri"
   },

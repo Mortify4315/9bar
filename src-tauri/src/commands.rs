@@ -9,17 +9,15 @@ pub struct AppState {
 }
 
 #[tauri::command]
-pub async fn fetch_quotas(base_url: Option<String>) -> Result<Vec<AccountQuotaView>, String> {
-    let client = RouterClient::new(base_url);
-    client.fetch_all_quotas().await
+pub async fn fetch_quotas() -> Result<Vec<AccountQuotaView>, String> {
+    RouterClient::new().fetch_all_quotas().await
 }
 
 #[tauri::command]
-pub async fn open_dashboard_url(app: AppHandle, url: Option<String>) -> Result<(), String> {
-    let target = url.unwrap_or_else(|| "http://localhost:20128/dashboard/quota".to_string());
+pub async fn open_dashboard_url(app: AppHandle) -> Result<(), String> {
     use tauri_plugin_opener::OpenerExt;
     app.opener()
-        .open_url(&target, None::<&str>)
+        .open_url("http://127.0.0.1:20128/dashboard/quota", None::<&str>)
         .map_err(|e| format!("Failed to open browser: {}", e))
 }
 

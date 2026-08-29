@@ -120,7 +120,7 @@ pub fn setup_system_tray(
                 }
                 "dashboard" => {
                     use tauri_plugin_opener::OpenerExt;
-                    let _ = app.opener().open_url("http://localhost:20128/dashboard/quota", None::<&str>);
+                    let _ = app.opener().open_url("http://127.0.0.1:20128/dashboard/quota", None::<&str>);
                 }
                 "quit" => {
                     is_quitting.store(true, Ordering::Relaxed);
